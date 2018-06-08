@@ -1,6 +1,6 @@
 #ifndef PLAYAREA_H
 #define PLAYAREA_H
-
+#include <curses.h>
 #include <iostream>
 using namespace std;
 class playarea
@@ -40,9 +40,9 @@ public:
     int getHeight() {
         return this->height;
     }
-    char getArea()
+    char getArea(int y, int x)
     {
-        return this->area[1][1];
+        return this->area[x][y];
     }
 
     void addToArea(int y, int x,char nekaj){
@@ -71,14 +71,20 @@ public:
         }
     }
     void printArea(){
+		initscr();
     for(int i=0; i<height; i++){
-            cout<<i<<" ";
-            if(i<10) cout<<" ";
-            cout<<":";
+		move(i, 25);
+            //cout<<i<<" ";
+            //printw("%i ",i);
+            //if(i<10) printw(" ");//cout<<" ";
+            //cout<<":";
+            //printw(":");
         for(int j=0; j<width; j++){
-            cout<<area[i][j];
+            //cout<<area[i][j];
+            printw("%c",area[i][j]);
         }
-        cout<<endl;
+        //cout<<endl;
+        printw("\n");
     }
     }
 };
