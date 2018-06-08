@@ -110,6 +110,7 @@ void t_main()
 
 
 void t_inet(){
+
     while(!isEnd){
       valread=read(new_socket,buff,1);
        if(buff[0]=='8')
@@ -134,6 +135,10 @@ void t_inet(){
       g->print_game();
     }
 	}
+
+  void t_inet_client(){
+
+  }
 int main()
 
 {
@@ -150,9 +155,20 @@ int main()
 	char cha;
 	cin>>cha;
 	switch(cha){
-		case '1':{
+		case '1':
+    {
+        cout<<"tu";
         struct sockaddr_in address;
+cout<<"tu";
         int addrlen = sizeof(address);
+        cout<<"tu";
+
+        if ((server_fd = socket(AF_INET, SOCK_STREAM, 0)) == 0)
+        {
+            perror("socket failed");
+            exit(EXIT_FAILURE);
+        }
+
 		if (setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT,
                                                   &opt, sizeof(opt)))
 			{
@@ -170,11 +186,13 @@ int main()
 			exit(EXIT_FAILURE);
 		}
 
+  cout<<"Waiting for client.."<<endl;
 	if (listen(server_fd, 3) < 0)
     {
         perror("listen");
         exit(EXIT_FAILURE);
     }
+    cout<<"Client connected!"<<endl;
 
     if ((new_socket = accept(server_fd, (struct sockaddr *)&address,
                        (socklen_t*)&addrlen))<0)
@@ -182,8 +200,69 @@ int main()
         perror("accept");
         exit(EXIT_FAILURE);
     }
+    cout<<"yes";
     thread t2(t_inet);
 
+
+    initscr();
+    cbreak();
+    noecho();
+    g=new game();
+
+    g->print_game();
+
+    g->addPlayersToArena();
+
+    g->spawnBall();
+
+    g->print_game();
+
+    thread t1(t_main);
+
+    char ch;
+
+    bool running=true;
+
+    while(running)
+
+    {
+        g->print_game();
+
+        if(_kbhit())
+        {
+            ch=getch();
+
+            if(isEnd==true)
+                t1.join();
+                t2.join();
+
+            if(ch=='w')
+
+            {
+
+                cout<<"gor";
+
+                g->movePlayer1Up();
+
+            }
+
+            else if(ch=='s')
+
+            {
+
+                cout<<"dol";
+
+                g->movePlayer1Down();
+
+            }
+
+        }
+
+
+
+    }
+
+    endwin();
 			break;
 		}
     case '2':{
@@ -226,112 +305,69 @@ int main()
       valread = read( sock , buffer, 1024);
       printf("Hello message sent\n");
       printf("%s\n",buffer );*/
+
+      initscr();
+      cbreak();
+      noecho();
+      g=new game();
+
+      g->print_game();
+
+      g->addPlayersToArena();
+
+      g->spawnBall();
+
+      g->print_game();
+
+      thread t1(t_main);
+
+      char ch;
+
+      bool running;
+      running=true;
+
+      while(running)
+
+      {
+          g->print_game();
+
+          if(_kbhit())
+          {
+              ch=getch();
+
+              if(isEnd==true)
+                  t1.join();
+
+              if(ch=='8')
+
+              {
+                buff[0]='8';
+                  send(sock , buff , strlen(buff) , 0 );
+                  cout<<"gor";
+
+                  g->movePlayer1Up();
+
+              }
+
+              else if(ch=='5')
+
+              {
+                buff[0]='5';
+                  send(sock , buff , strlen(buff) , 0 );
+                  cout<<"dol";
+
+                  g->movePlayer1Down();
+
+              }
+
+          }
+
             break;
     }
+  }
 		case '3':
 			break;
 		}
-
-
-
-    srand(time(NULL));
-
-
-
-
-
-
-
-
-
-    int a;
-
-    //cin>>a;
-
-    /*
-
-        int ch;
-
-        do{
-
-            ch=_getch();
-
-        }
-
-        while(ch!='w');
-
-        cout<<"yes";
-
-        */
-	initscr();
-	cbreak();
-	noecho();
-    g=new game();
-
-    g->print_game();
-
-    g->addPlayersToArena();
-
-    g->spawnBall();
-
-    g->print_game();
-
-
-
-    thread t1(t_main);
-
-    char ch, ch2;
-
-    bool running=true;
-
-    while(running)
-
-    {
-
-
-
-
-
-        g->print_game();
-
-
-
-        if(_kbhit())
-        {
-
-            ch=getch();
-
-            if(isEnd==true)
-                t1.join();
-                t2.join();
-
-            if(ch=='w')
-
-            {
-
-                cout<<"gor";
-
-                g->movePlayer1Up();
-
-            }
-
-            else if(ch=='s')
-
-            {
-
-                cout<<"dol";
-
-                g->movePlayer1Down();
-
-            }
-
-        }
-
-
-
-    }
-
-    endwin();
 
     return 0;
 
