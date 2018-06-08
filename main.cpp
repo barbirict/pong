@@ -14,17 +14,19 @@
 #include <netinet/in.h>
 #include <stdio.h>
 #include <sys/socket.h>
+#include <string.h>
+#include <arpa/inet.h>
 using namespace std;
-
+#define PORT 28960
 
 
 bool isEnd=false;
 
 game* g;
 int server_fd, new_socket, valread;
-struct sockaddr_in_address;
+
 int opt =1;
-char buff='0';
+char buff[100]={};
 
 
 int _kbhit()
@@ -55,8 +57,6 @@ int _kbhit()
 
     }
 
-
-
     int bytesWaiting;
 
     ioctl(STDIN, FIONREAD, &bytesWaiting);
@@ -64,10 +64,6 @@ int _kbhit()
     return bytesWaiting;
 
 }
-
-
-
-
 
 void t_main()
 {
@@ -86,8 +82,6 @@ void t_main()
         if(z==1 || z==2)
         {
 
-
-
             x= rand() % 1 + (-1);
 
             y= rand() % 1 + (-1);
@@ -97,10 +91,6 @@ void t_main()
             g->setSpeed(2000);
 
             g->spawnBall();
-
-
-
-
 
         }
 
@@ -120,12 +110,34 @@ void t_main()
 
 
 void t_inet(){
-	
+    while(!isEnd){
+      valread=read(new_socket,buff,1);
+       if(buff[0]=='8')
+
+      {
+
+          //cout<<"gor";
+
+          g->movePlayer2Up();
+
+      }
+
+      else if(buff[0]=='5')
+
+      {
+
+          //cout<<"dol";
+
+          g->movePlayer2Down();
+
+      }
+      g->print_game();
+    }
 	}
 int main()
 
 {
-	string ip, port;
+	string ip;
     clear();
 
     //initscr();
@@ -139,7 +151,8 @@ int main()
 	cin>>cha;
 	switch(cha){
 		case '1':{
-
+        struct sockaddr_in address;
+        int addrlen = sizeof(address);
 		if (setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT,
                                                   &opt, sizeof(opt)))
 			{
@@ -148,39 +161,73 @@ int main()
 			}
 		    address.sin_family = AF_INET;
 			address.sin_addr.s_addr = INADDR_ANY;
-			address.sin_port = htons( port );
-		
-		if (bind(server_fd, (struct sockaddr *)&address, 
+			address.sin_port = htons( PORT );
+
+		if (bind(server_fd, (struct sockaddr *)&address,
                                  sizeof(address))<0)
 		{
 			perror("bind failed");
 			exit(EXIT_FAILURE);
 		}
-		
+
 	if (listen(server_fd, 3) < 0)
     {
         perror("listen");
         exit(EXIT_FAILURE);
     }
-    
-    if ((new_socket = accept(server_fd, (struct sockaddr *)&address, 
+
+    if ((new_socket = accept(server_fd, (struct sockaddr *)&address,
                        (socklen_t*)&addrlen))<0)
     {
         perror("accept");
         exit(EXIT_FAILURE);
     }
     thread t2(t_inet);
-			
+
 			break;
 		}
-		case '2':
-			//printw("\nVnesi IP naslov streznika: ");
-			cout<<"Vnesi IP :"<<endl;
-			cin>>ip;
-			//printw("Vnesi port: ");
-			cout<<"Vnesi Port:"<<endl;
-			cin>>port;
-			break;
+    case '2':{
+            //printw("\nVnesi IP naslov streznika: ");
+            cout<<"Vnesi IP :"<<endl;
+            cin>>ip;
+            //printw("Vnesi port: ");
+            /*cout<<"Vnesi Port:"<<endl;
+            cin>>port;*/
+      struct sockaddr_in address;
+      int sock = 0, valread;
+      struct sockaddr_in serv_addr;
+      //char *hello = "Hello from client";
+      if ((sock = socket(AF_INET, SOCK_STREAM, 0)) < 0)
+      {
+        cout << "\n Socket creation error \n";
+        return -1;
+      }
+
+      memset(&serv_addr, '0', sizeof(serv_addr));
+
+      serv_addr.sin_family = AF_INET;
+      serv_addr.sin_port = htons(PORT);
+
+      const char *c = ip.c_str();
+
+      // Convert IPv4 and IPv6 addresses from text to binary form
+      if(inet_pton(AF_INET, c, &serv_addr.sin_addr)<=0)
+      {
+        cout << "\nInvalid address/ Address not supported \n";
+        return -1;
+      }
+
+      if (connect(sock, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0)
+      {
+        cout << "\nConnection Failed \n";
+        return -1;
+      }
+      /*send(sock , hello , strlen(hello) , 0 );
+      valread = read( sock , buffer, 1024);
+      printf("Hello message sent\n");
+      printf("%s\n",buffer );*/
+            break;
+    }
 		case '3':
 			break;
 		}
@@ -278,26 +325,6 @@ int main()
 
             }
 
-            else if(ch=='8')
-
-            {
-
-                cout<<"gor";
-
-                g->movePlayer2Up();
-
-            }
-
-            else if(ch=='5')
-
-            {
-
-                cout<<"dol";
-
-                g->movePlayer2Down();
-
-            }
-
         }
 
 
@@ -309,4 +336,3 @@ int main()
     return 0;
 
 }
-
