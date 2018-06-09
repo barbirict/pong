@@ -38,6 +38,10 @@ public:
     int getScore(){
         return this->score;
     }
+    void setScore(int koliko){
+        score=koliko;
+    }
+
     char getBody(int w){
         return this->body[w];
     }
