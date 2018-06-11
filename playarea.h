@@ -21,8 +21,10 @@ public:
     }
 
     playarea(const playarea& v):height(v.height),width(v.width){
-    for(int i=0; i<1000; i++){
-        area[i][i]=v.area[i][i];
+    for(int i=0; i<20; i++){
+        for(int j=0; j<60; j++){
+          area[i][j]=v.area[i][j];
+        }
     }
     };
 
